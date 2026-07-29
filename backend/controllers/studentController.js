@@ -1,5 +1,4 @@
-import { getTenantConnection } from '../config/db.js';
-import { studentSchema } from '../models/studentModel.js';
+import Student from '../models/studentModel.js';
 
 // Add a new student with their pre-calculated face descriptor
 export const addStudent = async (req, res) => {
@@ -8,13 +7,11 @@ export const addStudent = async (req, res) => {
         return res.status(400).json({ message: "Please provide all student details including face data." });
     }
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Student = conn.models.Student || conn.model('Student', studentSchema);
-        const studentExists = await Student.findOne({ rollNumber, batchName });
+        const studentExists = await Student.findOne({ rollNumber, batchName, tenantId: req.tenantId });
         if (studentExists) {
             return res.status(400).json({ message: "Student with this roll number already exists in this batch." });
         }
-        const student = new Student({ name, rollNumber, batchName, faceDescriptor });
+        const student = new Student({ name, rollNumber, batchName, faceDescriptor, tenantId: req.tenantId });
         await student.save();
         res.status(201).json(student);
     } catch (error) {
@@ -25,9 +22,7 @@ export const addStudent = async (req, res) => {
 // Get all students, optionally filtering by batch
 export const getStudents = async (req, res) => {
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Student = conn.models.Student || conn.model('Student', studentSchema);
-        const query = req.query.batchName ? { batchName: req.query.batchName } : {};
+        const query = req.query.batchName ? { batchName: req.query.batchName, tenantId: req.tenantId } : { tenantId: req.tenantId };
         const students = await Student.find(query);
         res.json(students);
     } catch (error) {
@@ -42,8 +37,6 @@ export const bulkAddStudents = async (req, res) => {
         return res.status(400).json({ message: 'No students provided for bulk upload.' });
     }
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Student = conn.models.Student || conn.model('Student', studentSchema);
 
         // Prepare documents ensuring required fields exist
         const docs = students
@@ -53,6 +46,7 @@ export const bulkAddStudents = async (req, res) => {
                 rollNumber: String(s.rollNumber),
                 batchName: s.batchName,
                 faceDescriptor: s.faceDescriptor,
+                tenantId: req.tenantId,
             }));
 
         if (docs.length === 0) {

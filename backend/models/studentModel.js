@@ -17,11 +17,16 @@ const studentSchema = mongoose.Schema({
     faceDescriptor: {
         type: [Number],
         required: true
+    },
+    tenantId: {
+        type: String,
+        required: true,
+        index: true
     }
 }, { timestamps: true });
 
-// Ensure roll number is unique within a specific batch
-studentSchema.index({ rollNumber: 1, batchName: 1 }, { unique: true });
+// Ensure roll number is unique within a specific batch and tenant
+studentSchema.index({ rollNumber: 1, batchName: 1, tenantId: 1 }, { unique: true });
 
 const Student = mongoose.model('Student', studentSchema);
 export default Student;

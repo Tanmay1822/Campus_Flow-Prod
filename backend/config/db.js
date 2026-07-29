@@ -12,17 +12,6 @@ const connectDB = async () => {
   }
 };
 
-export const getTenantConnection = async (tenantId) => {
-  const connectionName = `tenant_${tenantId}`;
-  if (mongoose.connections.find(c => c.name === connectionName)) {
-    return mongoose.connections.find(c => c.name === connectionName);
-  }
-  const uri = process.env.MONGO_URI;
-  const conn = await mongoose.createConnection(uri, {
-    dbName: `${process.env.TENANT_DB_PREFIX || 'aafok_tenant_'}${tenantId}`
-  }).asPromise();
-  return conn;
-};
 
 export default connectDB;
 

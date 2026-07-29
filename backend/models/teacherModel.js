@@ -3,16 +3,22 @@ import mongoose from 'mongoose';
 const teacherSchema = mongoose.Schema({
     name: {
         type: String,
+        type: String,
         required: true,
-        unique: true,
     },
     subjects: [
         {
             type: String,
-            required: true,
         }
-    ]
+    ],
+    tenantId: {
+        type: String,
+        required: true,
+        index: true
+    }
 }, { timestamps: true });
+
+teacherSchema.index({ name: 1, tenantId: 1 }, { unique: true });
 
 const Teacher = mongoose.model('Teacher', teacherSchema);
 export default Teacher;

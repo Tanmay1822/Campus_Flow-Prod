@@ -20,8 +20,15 @@ const attendanceSchema = mongoose.Schema({
     presentStudents: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Student' 
-    }]
+    }],
+    tenantId: {
+        type: String,
+        required: true,
+        index: true
+    }
 }, { timestamps: true });
+
+attendanceSchema.index({ batchName: 1, date: 1, subject: 1, tenantId: 1 }, { unique: true });
 
 const Attendance = mongoose.model('Attendance', attendanceSchema);
 export default Attendance;

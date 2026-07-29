@@ -1290,9 +1290,9 @@ const AdminDashboard = ({ userInfo, onLogout, onNavigate }) => {
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">
           <button
             onClick={() => setActiveTab("timetable")}
-            className={`whitespace-nowrap py-4 px-1 border-b border-bronco/10-2 font-medium text-sm ${
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === "timetable"
-                ? "border-b border-bronco/10lue-500 text-bronco"
+                ? "border-bronco text-bronco"
                 : "border-transparent text-bronco/60 hover:text-bronco/80 hover:border-bronco/20"
             }`}
           >
@@ -1300,9 +1300,9 @@ const AdminDashboard = ({ userInfo, onLogout, onNavigate }) => {
           </button>
           <button
             onClick={() => setActiveTab("reports")}
-            className={`whitespace-nowrap py-4 px-1 border-b border-bronco/10-2 font-medium text-sm ${
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === "reports"
-                ? "border-b border-bronco/10lue-500 text-bronco"
+                ? "border-bronco text-bronco"
                 : "border-transparent text-bronco/60 hover:text-bronco/80 hover:border-bronco/20"
             }`}
           >
@@ -1310,9 +1310,9 @@ const AdminDashboard = ({ userInfo, onLogout, onNavigate }) => {
           </button>
           <button
             onClick={() => setActiveTab("photoAttendance")}
-            className={`whitespace-nowrap py-4 px-1 border-b border-bronco/10-2 font-medium text-sm ${
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === "photoAttendance"
-                ? "border-b border-bronco/10lue-500 text-bronco"
+                ? "border-bronco text-bronco"
                 : "border-transparent text-bronco/60 hover:text-bronco/80 hover:border-bronco/20"
             }`}
           >
@@ -1320,9 +1320,9 @@ const AdminDashboard = ({ userInfo, onLogout, onNavigate }) => {
           </button>
           <button
             onClick={() => setActiveTab("bulkUpload")}
-            className={`whitespace-nowrap py-4 px-1 border-b border-bronco/10-2 font-medium text-sm ${
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === "bulkUpload"
-                ? "border-b border-bronco/10lue-500 text-bronco"
+                ? "border-bronco text-bronco"
                 : "border-transparent text-bronco/60 hover:text-bronco/80 hover:border-bronco/20"
             }`}
           >

@@ -1,29 +1,23 @@
-import { getTenantConnection } from '../config/db.js';
-import { batchSchema } from '../models/batchModel.js';
-import { timetableSchema } from '../models/timetableModel.js';
-import { teacherSchema } from '../models/teacherModel.js';
+import Batch from '../models/batchModel.js';
+import Timetable from '../models/timetableModel.js';
+import Teacher from '../models/teacherModel.js';
 import { generateTimetableAlgorithm } from '../utils/timetableAlgorithm.js';
-
-// All other functions (generateTimetable, getTimetables, etc.) remain the same...
 
 export const generateTimetable = async (req, res) => {
     try {
         const { classrooms, labs } = req.body;
-        const conn = await getTenantConnection(req.tenantId);
-        const Teacher = conn.models.Teacher || conn.model('Teacher', teacherSchema);
-        const Batch = conn.models.Batch || conn.model('Batch', batchSchema);
-        const Timetable = conn.models.Timetable || conn.model('Timetable', timetableSchema);
-        const teachers = await Teacher.find({});
-        const batches = await Batch.find({});
+        const teachers = await Teacher.find({ tenantId: req.tenantId });
+        const batches = await Batch.find({ tenantId: req.tenantId });
         if (!batches.length || !teachers.length || !classrooms?.length || !labs?.length) {
             return res.status(400).json({ message: "Missing required data. Ensure teachers, batches, classrooms, and labs are configured." });
         }
         const generatedSchedules = generateTimetableAlgorithm(batches, teachers, classrooms, labs);
-        await Timetable.deleteMany({});
+        await Timetable.deleteMany({ tenantId: req.tenantId });
         const timetablePromises = Object.keys(generatedSchedules).map(batchName => {
             const newTimetable = new Timetable({
                 batchName,
                 schedule: generatedSchedules[batchName],
+                tenantId: req.tenantId
             });
             return newTimetable.save();
         });
@@ -37,9 +31,7 @@ export const generateTimetable = async (req, res) => {
 
 export const getTimetables = async (req, res) => {
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Timetable = conn.models.Timetable || conn.model('Timetable', timetableSchema);
-        const timetables = await Timetable.find({});
+        const timetables = await Timetable.find({ tenantId: req.tenantId });
         res.json(timetables);
     } catch (error) {
         console.error('Error fetching timetables:', error);
@@ -53,9 +45,7 @@ export const addOrUpdateBatch = async (req, res) => {
         return res.status(400).json({ message: "Please provide a name, a list of subjects, and a list of labs." });
     }
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Batch = conn.models.Batch || conn.model('Batch', batchSchema);
-        const batch = await Batch.findOneAndUpdate({ name }, { subjects, labs }, { new: true, upsert: true });
+        const batch = await Batch.findOneAndUpdate({ name, tenantId: req.tenantId }, { subjects, labs, tenantId: req.tenantId }, { new: true, upsert: true });
         res.status(201).json(batch);
     } catch(error) {
         console.error('Error adding/updating batch:', error);
@@ -65,9 +55,7 @@ export const addOrUpdateBatch = async (req, res) => {
 
 export const getBatches = async (req, res) => {
      try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Batch = conn.models.Batch || conn.model('Batch', batchSchema);
-        const batches = await Batch.find({});
+        const batches = await Batch.find({ tenantId: req.tenantId });
         res.json(batches);
     } catch (error) {
         console.error('Error fetching batches:', error);
@@ -75,19 +63,13 @@ export const getBatches = async (req, res) => {
     }
 }
 
-// --- THIS IS THE FIX ---
-// Adds the logic to delete a batch from the database.
 export const deleteBatch = async (req, res) => {
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Batch = conn.models.Batch || conn.model('Batch', batchSchema);
-        const Timetable = conn.models.Timetable || conn.model('Timetable', timetableSchema);
-        const batch = await Batch.findById(req.params.id);
+        const batch = await Batch.findOne({ _id: req.params.id, tenantId: req.tenantId });
 
         if (batch) {
             await batch.deleteOne();
-            // Also delete any generated timetable associated with this batch
-            await Timetable.deleteMany({ batchName: batch.name });
+            await Timetable.deleteMany({ batchName: batch.name, tenantId: req.tenantId });
             res.json({ message: 'Batch removed' });
         } else {
             res.status(404).json({ message: 'Batch not found' });

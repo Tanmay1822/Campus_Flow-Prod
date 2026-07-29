@@ -1,5 +1,4 @@
-import { getTenantConnection } from '../config/db.js';
-import { teacherSchema } from '../models/teacherModel.js';
+import Teacher from '../models/teacherModel.js';
 
 // addTeacher and getTeachers functions remain the same...
 export const addTeacher = async (req, res) => {
@@ -8,9 +7,7 @@ export const addTeacher = async (req, res) => {
         return res.status(400).json({ message: "Please provide a name and at least one subject." });
     }
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Teacher = conn.models.Teacher || conn.model('Teacher', teacherSchema);
-        const teacher = await Teacher.findOneAndUpdate({ name }, { subjects }, { new: true, upsert: true });
+        const teacher = await Teacher.findOneAndUpdate({ name, tenantId: req.tenantId }, { subjects, tenantId: req.tenantId }, { new: true, upsert: true });
         res.status(201).json(teacher);
     } catch (error) { 
         console.error('Error adding teacher:', error);
@@ -20,9 +17,7 @@ export const addTeacher = async (req, res) => {
 
 export const getTeachers = async (req, res) => {
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Teacher = conn.models.Teacher || conn.model('Teacher', teacherSchema);
-        const teachers = await Teacher.find({});
+        const teachers = await Teacher.find({ tenantId: req.tenantId });
         res.json(teachers);
     } catch (error) { 
         console.error('Error fetching teachers:', error);
@@ -33,9 +28,7 @@ export const getTeachers = async (req, res) => {
 // --- NEW: Function to handle deleting a teacher by their ID ---
 export const deleteTeacher = async (req, res) => {
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Teacher = conn.models.Teacher || conn.model('Teacher', teacherSchema);
-        const teacher = await Teacher.findById(req.params.id);
+        const teacher = await Teacher.findOne({ _id: req.params.id, tenantId: req.tenantId });
         if (teacher) {
             await teacher.deleteOne();
             res.json({ message: 'Teacher removed' });

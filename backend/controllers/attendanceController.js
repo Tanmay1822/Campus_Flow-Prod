@@ -1,6 +1,5 @@
-import { getTenantConnection } from '../config/db.js';
-import { attendanceSchema } from '../models/attendanceModel.js';
-import { studentSchema } from '../models/studentModel.js';
+import Attendance from '../models/attendanceModel.js';
+import Student from '../models/studentModel.js';
 
 // Mark attendance for a specific class
 export const markAttendance = async (req, res) => {
@@ -10,10 +9,7 @@ export const markAttendance = async (req, res) => {
     }
 
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Attendance = conn.models.Attendance || conn.model('Attendance', attendanceSchema);
-        conn.models.Student || conn.model('Student', studentSchema);
-        const newRecord = new Attendance({ date, batchName, subject, teacherName, presentStudents });
+        const newRecord = new Attendance({ date, batchName, subject, teacherName, presentStudents, tenantId: req.tenantId });
         await newRecord.save();
         res.status(201).json({ message: 'Attendance marked successfully.' });
     } catch (error) {
@@ -24,11 +20,8 @@ export const markAttendance = async (req, res) => {
 // Get attendance records, with filtering options
 export const getAttendance = async (req, res) => {
     try {
-        const conn = await getTenantConnection(req.tenantId);
-        const Attendance = conn.models.Attendance || conn.model('Attendance', attendanceSchema);
-        conn.models.Student || conn.model('Student', studentSchema);
         const { batchName, date } = req.query;
-        const query = {};
+        const query = { tenantId: req.tenantId };
         if (batchName) query.batchName = batchName;
         if (date) {
             // Query for records on a specific day

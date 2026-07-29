@@ -129,9 +129,9 @@ const ClassCell = ({ entry }) => {
   const isTeacherAvailable = entry.teacher && entry.teacher !== "Not Available";
   const bgColor = isTeacherAvailable
     ? "bg-blue-100 hover:bg-blue-200"
-    : "bg-bronco text-creme/20 text-bronco hover:bg-red-200";
+    : "bg-red-100 hover:bg-red-200";
   const textColor = isTeacherAvailable ? "text-blue-800" : "text-red-800";
-  const roomColor = isTeacherAvailable ? "text-bronco/70" : "text-bronco";
+  const roomColor = isTeacherAvailable ? "text-blue-600" : "text-red-600";
   return (
     <div
       className={`p-2 rounded-lg h-full transition-colors duration-200 ${bgColor} ${textColor}`}
@@ -497,6 +497,7 @@ const RegisterPage = ({ onRegisterSuccess, setPage }) => {
 // --- ADMIN DASHBOARD ---
 const AdminDashboard = ({ userInfo, onLogout }) => {
   const [timetables, setTimetables] = useState([]);
+  const [activeTab, setActiveTab] = useState("timetable");
   const [selectedBatchName, setSelectedBatchName] = useState("");
   const [teachers, setTeachers] = useState([]);
   const [batches, setBatches] = useState([]);
@@ -751,246 +752,302 @@ const AdminDashboard = ({ userInfo, onLogout }) => {
       {error && <Alert message={error} />}
       {success && <Alert message={success} />}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {userInfo.role === 'admin' && (
-          <div className="bg-stone border border-bronco/10 shadow-sm p-6 rounded-xl shadow-lg bg-white/50 text-bronco border-bronco/10">
-            <h3 className="text-xl font-bold text-bronco/80 mb-4">Invite Member</h3>
-            <form onSubmit={handleInvite} className="space-y-3">
-              <input type="text" placeholder="Name" value={inviteName} onChange={(e)=>setInviteName(e.target.value)} className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10" required />
-              <input type="email" placeholder="Email" value={inviteEmail} onChange={(e)=>setInviteEmail(e.target.value)} className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10" required />
-              <input type="password" placeholder="Temp Password" value={invitePassword} onChange={(e)=>setInvitePassword(e.target.value)} className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10" required />
-              <button type="submit" className="bg-indigo-600 text-creme px-4 py-2 rounded-md hover:bg-indigo-700 font-semibold w-full">Invite</button>
-            </form>
+      <div className="border-b border-bronco/10 mb-8 overflow-x-auto">
+        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab("timetable")}
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "timetable"
+                ? "border-bronco text-bronco"
+                : "border-transparent text-bronco/60 hover:text-bronco/80 hover:border-bronco/20"
+            }`}
+          >
+            Generate & View Timetable
+          </button>
+          <button
+            onClick={() => setActiveTab("teachers")}
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "teachers"
+                ? "border-bronco text-bronco"
+                : "border-transparent text-bronco/60 hover:text-bronco/80 hover:border-bronco/20"
+            }`}
+          >
+            Manage Teachers
+          </button>
+          <button
+            onClick={() => setActiveTab("batches")}
+            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "batches"
+                ? "border-bronco text-bronco"
+                : "border-transparent text-bronco/60 hover:text-bronco/80 hover:border-bronco/20"
+            }`}
+          >
+            Manage Batches
+          </button>
+          {userInfo.role === "admin" && (
+            <button
+              onClick={() => setActiveTab("invite")}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "invite"
+                  ? "border-bronco text-bronco"
+                  : "border-transparent text-bronco/60 hover:text-bronco/80 hover:border-bronco/20"
+              }`}
+            >
+              Invite Member
+            </button>
+          )}
+        </nav>
+      </div>
+
+      <div className="w-full">
+        {activeTab === "invite" && userInfo.role === "admin" && (
+          <div className="w-full mb-8">
+            <div className="bg-stone border border-bronco/10 shadow-sm p-6 sm:p-8 rounded-xl">
+              <h3 className="text-xl font-bold text-bronco/80 mb-6 text-center">Invite Member</h3>
+              <form onSubmit={handleInvite} className="space-y-3">
+                <input type="text" placeholder="Name" value={inviteName} onChange={(e)=>setInviteName(e.target.value)} className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10" required />
+                <input type="email" placeholder="Email" value={inviteEmail} onChange={(e)=>setInviteEmail(e.target.value)} className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10" required />
+                <input type="password" placeholder="Temp Password" value={invitePassword} onChange={(e)=>setInvitePassword(e.target.value)} className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10" required />
+                <button type="submit" className="bg-indigo-600 text-creme px-4 py-2 rounded-md hover:bg-indigo-700 font-semibold w-full">Invite</button>
+              </form>
+            </div>
           </div>
         )}
-        <div className="bg-stone border border-bronco/10 shadow-sm p-6 rounded-xl shadow-lg bg-white/50 text-bronco border-bronco/10">
-          <h3 className="text-xl font-bold text-bronco/80 mb-4">
-            Manage Teachers
-          </h3>
-          <form onSubmit={handleAddTeacher} className="space-y-3">
-            <input
-              type="text"
-              placeholder="Teacher Name"
-              value={newTeacherName}
-              onChange={(e) => setNewTeacherName(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10"
-              required
-            />
-            <MultiSelectDropdown
-              placeholder="Select Subjects"
-              allOptions={PREDEFINED_SUBJECTS}
-              selectedOptions={selectedTeacherSubjects}
-              setSelectedOptions={setSelectedTeacherSubjects}
-            />
-            <button
-              type="submit"
-              className="bg-mesa-clay text-creme px-4 py-2 rounded-md hover:bg-mesa-clay font-semibold w-full"
-            >
-              Add Teacher
-            </button>
-          </form>
-          <div className="mt-4 h-48 overflow-y-auto border rounded-md p-2 bg-white/5 bg-white/50 text-bronco border-bronco/10">
-            <div className="text-sm p-2 border-b border-bronco/10 font-semibold text-bronco/80">
-              Existing Teachers
-            </div>
-            {teachers.map((t) => (
-              <div
-                key={t._id}
-                className="flex justify-between items-center text-sm p-2 border-b border-bronco/10"
-              >
-                <span>
-                  {t.name}{" "}
-                  <span className="text-bronco/60">
-                    ({t.subjects.join(", ")})
-                  </span>
-                </span>
+
+        {activeTab === "teachers" && (
+          <div className="w-full mb-8">
+            <div className="bg-stone border border-bronco/10 shadow-sm p-6 sm:p-8 rounded-xl">
+              <h3 className="text-xl font-bold text-bronco/80 mb-6 text-center">Manage Teachers</h3>
+              <form onSubmit={handleAddTeacher} className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Teacher Name"
+                  value={newTeacherName}
+                  onChange={(e) => setNewTeacherName(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10"
+                  required
+                />
+                <MultiSelectDropdown
+                  placeholder="Select Subjects"
+                  allOptions={PREDEFINED_SUBJECTS}
+                  selectedOptions={selectedTeacherSubjects}
+                  setSelectedOptions={setSelectedTeacherSubjects}
+                />
                 <button
-                  onClick={() => handleDeleteTeacher(t._id)}
-                  className="text-bronco hover:text-bronco p-1"
+                  type="submit"
+                  className="bg-mesa-clay text-creme px-4 py-2 rounded-md hover:bg-mesa-clay font-semibold w-full"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                  Add Teacher
+                </button>
+              </form>
+              <div className="mt-6 h-48 overflow-y-auto border rounded-md p-2 bg-white/5 bg-white/50 text-bronco border-bronco/10">
+                <div className="text-sm p-2 border-b border-bronco/10 font-semibold text-bronco/80">
+                  Existing Teachers
+                </div>
+                {teachers.map((t) => (
+                  <div
+                    key={t._id}
+                    className="flex justify-between items-center text-sm p-2 border-b border-bronco/10"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                    <span>
+                      {t.name}{" "}
+                      <span className="text-bronco/60">
+                        ({t.subjects.join(", ")})
+                      </span>
+                    </span>
+                    <button
+                      onClick={() => handleDeleteTeacher(t._id)}
+                      className="text-bronco hover:text-bronco p-1"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "batches" && (
+          <div className="w-full mb-8">
+            <div className="bg-stone border border-bronco/10 shadow-sm p-6 sm:p-8 rounded-xl">
+              <h3 className="text-xl font-bold text-bronco/80 mb-6 text-center">Manage Batches</h3>
+              <form onSubmit={handleAddBatch} className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Batch Name (e.g., FY-CSE)"
+                  value={newBatchName}
+                  onChange={(e) => setNewBatchName(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10"
+                  required
+                />
+                <MultiSelectDropdown
+                  placeholder="Select Subjects"
+                  allOptions={PREDEFINED_SUBJECTS.filter(
+                    (s) =>
+                      !s.toLowerCase().includes("lab") &&
+                      !s.toLowerCase().includes("workshop")
+                  )}
+                  selectedOptions={selectedBatchSubjects}
+                  setSelectedOptions={setSelectedBatchSubjects}
+                />
+                <MultiSelectDropdown
+                  placeholder="Select Labs"
+                  allOptions={PREDEFINED_SUBJECTS.filter(
+                    (s) =>
+                      s.toLowerCase().includes("lab") ||
+                      s.toLowerCase().includes("workshop")
+                  )}
+                  selectedOptions={selectedBatchLabs}
+                  setSelectedOptions={setSelectedBatchLabs}
+                />
+                <button
+                  type="submit"
+                  className="bg-mesa-clay text-creme px-4 py-2 rounded-md hover:bg-mesa-clay font-semibold w-full"
+                >
+                  Add Batch
+                </button>
+              </form>
+              <div className="mt-6 h-48 overflow-y-auto border rounded-md bg-white/5 bg-white/50 text-bronco border-bronco/10">
+                <div className="text-sm p-2 border-b border-bronco/10 font-semibold text-bronco/80">
+                  Existing Batches
+                </div>
+                {batches.map((b) => (
+                  <BatchListItem
+                    key={b._id}
+                    batch={b}
+                    onDelete={handleDeleteBatch}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "timetable" && (
+          <div className="w-full mb-8 space-y-8">
+            <div className="bg-stone border border-bronco/10 shadow-sm p-6 sm:p-8 rounded-xl">
+              <h3 className="text-xl font-bold text-bronco/80 mb-6 text-center">Generate Timetable</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div>
+                  <label className="block text-sm font-medium text-bronco/80 mb-1">
+                    Classrooms
+                  </label>
+                  <textarea
+                    rows="2"
+                    value={classrooms}
+                    onChange={(e) => setClassrooms(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10"
+                  ></textarea>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-bronco/80 mb-1">
+                    Labs
+                  </label>
+                  <textarea
+                    rows="2"
+                    value={labs}
+                    onChange={(e) => setLabs(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10"
+                  ></textarea>
+                </div>
+                <button
+                  onClick={handleGenerate}
+                  className="w-full h-[62px] bg-mesa-clay text-creme font-semibold rounded-md shadow-sm hover:bg-mesa-clay/80 transition-colors disabled:bg-gray-400"
+                  disabled={generating}
+                >
+                  {generating ? "Generating..." : "Generate All Timetables"}
                 </button>
               </div>
-            ))}
-          </div>
-        </div>
-        <div className="bg-stone border border-bronco/10 shadow-sm p-6 rounded-xl shadow-lg bg-white/50 text-bronco border-bronco/10">
-          <h3 className="text-xl font-bold text-bronco/80 mb-4">
-            Manage Batches
-          </h3>
-          <form onSubmit={handleAddBatch} className="space-y-3">
-            <input
-              type="text"
-              placeholder="Batch Name (e.g., FY-CSE)"
-              value={newBatchName}
-              onChange={(e) => setNewBatchName(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10"
-              required
-            />
-            <MultiSelectDropdown
-              placeholder="Select Subjects"
-              allOptions={PREDEFINED_SUBJECTS.filter(
-                (s) =>
-                  !s.toLowerCase().includes("lab") &&
-                  !s.toLowerCase().includes("workshop")
-              )}
-              selectedOptions={selectedBatchSubjects}
-              setSelectedOptions={setSelectedBatchSubjects}
-            />
-            <MultiSelectDropdown
-              placeholder="Select Labs"
-              allOptions={PREDEFINED_SUBJECTS.filter(
-                (s) =>
-                  s.toLowerCase().includes("lab") ||
-                  s.toLowerCase().includes("workshop")
-              )}
-              selectedOptions={selectedBatchLabs}
-              setSelectedOptions={setSelectedBatchLabs}
-            />
-            <button
-              type="submit"
-              className="bg-mesa-clay text-creme px-4 py-2 rounded-md hover:bg-mesa-clay font-semibold w-full"
-            >
-              Add Batch
-            </button>
-          </form>
-          <div className="mt-4 h-48 overflow-y-auto border rounded-md bg-white/5 bg-white/50 text-bronco border-bronco/10">
-            <div className="text-sm p-2 border-b border-bronco/10 font-semibold text-bronco/80">
-              Existing Batches
             </div>
-            {batches.map((b) => (
-              <BatchListItem
-                key={b._id}
-                batch={b}
-                onDelete={handleDeleteBatch}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
 
-      <div className="bg-stone border border-bronco/10 shadow-sm p-6 rounded-xl shadow-lg mb-8 bg-white/50 text-bronco border-bronco/10">
-        <h3 className="text-xl font-bold text-bronco/80 mb-4">
-          Generate Timetable
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div>
-            <label className="block text-sm font-medium text-bronco/80 mb-1">
-              Classrooms
-            </label>
-            <textarea
-              rows="2"
-              value={classrooms}
-              onChange={(e) => setClassrooms(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10"
-            ></textarea>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-bronco/80 mb-1">
-              Labs
-            </label>
-            <textarea
-              rows="2"
-              value={labs}
-              onChange={(e) => setLabs(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md bg-white/50 text-bronco border-bronco/10"
-            ></textarea>
-          </div>
-          <button
-            onClick={handleGenerate}
-            className="w-full h-full bg-mesa-clay text-creme font-semibold rounded-md shadow-sm hover:bg-mesa-clay/80 shadow-lg transition-colors disabled:bg-gray-400"
-            disabled={generating}
-          >
-            {generating ? "Generating..." : "Generate All Timetables"}
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <Spinner />
-      ) : (
-        batchNamesForDropdown.length > 0 && (
-          <div className="bg-stone border border-bronco/10 shadow-sm p-4 sm:p-6 rounded-xl shadow-lg bg-white/50 text-bronco border-bronco/10">
-            <div className="flex justify-center mb-6">
-              <select
-                value={selectedBatchName}
-                onChange={(e) => setSelectedBatchName(e.target.value)}
-                className="px-4 py-2 border rounded-md shadow-sm bg-stone border border-bronco/10 shadow-sm bg-white/50 text-bronco border-bronco/10"
-              >
-                <option value="">Select a Batch</option>
-                {batchNamesForDropdown.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {selectedTimetable ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="p-3 font-semibold text-left text-xs text-bronco/70 uppercase w-32">
-                        Time Slot
-                      </th>
-                      {weekdays.map((day) => (
-                        <th
-                          key={day}
-                          className="p-3 font-semibold text-center text-xs text-bronco/70 uppercase"
-                        >
-                          {day}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {timeSlots.map((slot) => (
-                      <tr key={slot} className="border-t">
-                        <td className="p-3 font-medium text-sm text-bronco/70 align-top">
-                          {slot}
-                        </td>
-                        {weekdays.map((day) => (
-                          <td
-                            key={day}
-                            className="p-2 align-top"
-                            style={{ minWidth: "150px", height: "80px" }}
-                          >
-                            <ClassCell
-                              entry={selectedTimetable.schedule[day]?.[slot]}
-                            />
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : selectedBatchName ? (
-              <div className="text-center p-8 text-bronco/70">
-                No timetable generated for this batch yet. Click "Generate All
-                Timetables".
-              </div>
+            {loading ? (
+              <Spinner />
             ) : (
-              <div className="text-center p-8 text-bronco/60">
-                Please select a batch to view its timetable.
-              </div>
+              batchNamesForDropdown.length > 0 && (
+                <div className="bg-stone border border-bronco/10 shadow-sm p-4 sm:p-6 rounded-xl">
+                  <div className="flex justify-center mb-6">
+                    <select
+                      value={selectedBatchName}
+                      onChange={(e) => setSelectedBatchName(e.target.value)}
+                      className="px-4 py-2 border rounded-md shadow-sm bg-stone border-bronco/10 bg-white/50 text-bronco"
+                    >
+                      <option value="">Select a Batch</option>
+                      {batchNamesForDropdown.map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {selectedTimetable ? (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full border-collapse">
+                        <thead>
+                          <tr>
+                            <th className="p-3 font-semibold text-left text-xs text-bronco/70 uppercase w-32">
+                              Time Slot
+                            </th>
+                            {weekdays.map((day) => (
+                              <th
+                                key={day}
+                                className="p-3 font-semibold text-center text-xs text-bronco/70 uppercase"
+                              >
+                                {day}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {timeSlots.map((slot) => (
+                            <tr key={slot} className="border-t border-bronco/10">
+                              <td className="p-3 font-medium text-sm text-bronco/70 align-top">
+                                {slot}
+                              </td>
+                              {weekdays.map((day) => (
+                                <td
+                                  key={day}
+                                  className="p-2 align-top"
+                                  style={{ minWidth: "150px", height: "80px" }}
+                                >
+                                  <ClassCell
+                                    entry={selectedTimetable.schedule[day]?.[slot]}
+                                  />
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : selectedBatchName ? (
+                    <div className="text-center p-8 text-bronco/70">
+                      No timetable generated for this batch yet. Click "Generate All Timetables".
+                    </div>
+                  ) : (
+                    <div className="text-center p-8 text-bronco/60">
+                      Please select a batch to view its timetable.
+                    </div>
+                  )}
+                </div>
+              )
             )}
           </div>
-        )
-      )}
+        )}
+      </div>
     </div>
   );
 };
