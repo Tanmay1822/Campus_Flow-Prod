@@ -1431,7 +1431,7 @@ const ReportsPage = ({ batches }) => {
     setError("");
     try {
       const { data } = await axios.get(
-        `${API_URL}/attendance/reports?batchName=${selectedBatch}`
+        `${API_URL}/attendance?batchName=${selectedBatch}`
       );
       setAttendanceData(data);
     } catch (err) {

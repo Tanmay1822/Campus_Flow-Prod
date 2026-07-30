@@ -32,8 +32,21 @@ export const getAttendance = async (req, res) => {
             query.date = { $gte: start, $lt: end };
         }
         
-        const records = await Attendance.find(query).populate('presentStudents', 'name rollNumber');
-        res.json(records);
+        const records = await Attendance.find(query).populate('presentStudents', 'name rollNumber').lean();
+
+        // Calculate total students for each batch dynamically
+        const batchNames = [...new Set(records.map(r => r.batchName))];
+        const batchCounts = {};
+        for (const batch of batchNames) {
+            batchCounts[batch] = await Student.countDocuments({ batchName: batch, tenantId: req.tenantId });
+        }
+
+        const recordsWithTotal = records.map(record => ({
+            ...record,
+            totalStudents: batchCounts[record.batchName] || 0
+        }));
+
+        res.json(recordsWithTotal);
     } catch (error) {
         res.status(500).json({ message: 'Server Error fetching attendance.' });
     }
