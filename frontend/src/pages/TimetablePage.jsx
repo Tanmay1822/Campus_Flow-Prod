@@ -320,6 +320,18 @@ const AdminDashboard = ({ userInfo, onLogout }) => {
     () => batches.map((b) => b.name).sort(),
     [batches]
   );
+  
+  const dynamicSubjects = useMemo(() => {
+    const subjects = new Set(PREDEFINED_SUBJECTS);
+    teachers.forEach(t => {
+      (t.subjects || []).forEach(s => subjects.add(s));
+    });
+    batches.forEach(b => {
+      (b.subjects || []).forEach(s => subjects.add(s));
+      (b.labs || []).forEach(l => subjects.add(l));
+    });
+    return Array.from(subjects).sort();
+  }, [teachers, batches]);
   const selectedTimetable = useMemo(
     () => timetables.find((t) => t.batchName === selectedBatchName),
     [timetables, selectedBatchName]
@@ -441,7 +453,7 @@ const AdminDashboard = ({ userInfo, onLogout }) => {
                 />
                 <MultiSelectDropdown
                   placeholder="Select Subjects"
-                  allOptions={PREDEFINED_SUBJECTS}
+                  allOptions={dynamicSubjects}
                   selectedOptions={selectedTeacherSubjects}
                   setSelectedOptions={setSelectedTeacherSubjects}
                 />
@@ -508,7 +520,7 @@ const AdminDashboard = ({ userInfo, onLogout }) => {
                 />
                 <MultiSelectDropdown
                   placeholder="Select Subjects"
-                  allOptions={PREDEFINED_SUBJECTS.filter(
+                  allOptions={dynamicSubjects.filter(
                     (s) =>
                       !s.toLowerCase().includes("lab") &&
                       !s.toLowerCase().includes("workshop")
@@ -518,7 +530,7 @@ const AdminDashboard = ({ userInfo, onLogout }) => {
                 />
                 <MultiSelectDropdown
                   placeholder="Select Labs"
-                  allOptions={PREDEFINED_SUBJECTS.filter(
+                  allOptions={dynamicSubjects.filter(
                     (s) =>
                       s.toLowerCase().includes("lab") ||
                       s.toLowerCase().includes("workshop")

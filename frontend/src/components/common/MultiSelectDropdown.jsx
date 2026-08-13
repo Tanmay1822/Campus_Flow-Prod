@@ -9,7 +9,12 @@ const MultiSelectDropdown = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [customOption, setCustomOption] = useState("");
+  const [addedOptions, setAddedOptions] = useState([]);
   const dropdownRef = useRef(null);
+
+  const combinedOptions = Array.from(
+    new Set([...allOptions, ...selectedOptions, ...addedOptions])
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -27,16 +32,13 @@ const MultiSelectDropdown = ({
         : [...prev, option]
     );
   const handleAddCustom = () => {
-    if (
-      customOption &&
-      !selectedOptions.includes(customOption) &&
-      !allOptions.includes(customOption)
-    ) {
-      setSelectedOptions([...selectedOptions, customOption]);
+    if (customOption && !combinedOptions.includes(customOption)) {
+      setAddedOptions((prev) => [...prev, customOption]);
+      setSelectedOptions((prev) => [...prev, customOption]);
       setCustomOption("");
     }
   };
-  const filteredOptions = allOptions.filter((option) =>
+  const filteredOptions = combinedOptions.filter((option) =>
     option.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

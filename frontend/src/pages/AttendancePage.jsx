@@ -178,7 +178,7 @@ const AttendancePage = ({ batchName, subject, teacherName, onBack }) => {
         presentStudents: presentStudentIds,
       });
       alert("Attendance saved successfully!");
-      onBack();
+      if (onBack) onBack();
     } catch (err) {
       alert("Failed to save attendance.");
     } finally {
@@ -376,7 +376,7 @@ const PhotoAttendancePage = ({ batches, userInfo, onBack }) => {
         presentStudents: presentStudentIds,
       });
       alert("Attendance saved successfully!");
-      onBack();
+      if (onBack) onBack();
     } catch (err) {
       alert("Failed to save attendance.");
     }
