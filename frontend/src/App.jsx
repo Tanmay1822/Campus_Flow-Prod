@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import HomePageSimple from './components/HomePageSimple';
-import TimetableApp from './components/TimetableApp';
-import FacialRecognitionApp from './components/FacialRecognitionApp';
-import AuthPage from './components/AuthPage';
+import DashboardPage from './pages/DashboardPage';
+import TimetablePage from './pages/TimetablePage';
+import AttendancePage from './pages/AttendancePage';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   const [userInfo, setUserInfo] = useState(null);
@@ -31,16 +31,16 @@ function App() {
   };
 
   if (!userInfo) {
-    return <AuthPage onLoginSuccess={handleLoginSuccess} />;
+    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (
     <Router>
       <div>
         <Routes>
-          <Route path="/" element={<HomePageSimple userInfo={userInfo} onLogout={handleLogout} />} />
-          <Route path="/timetable/*" element={<TimetableApp userInfo={userInfo} onLogout={handleLogout} />} />
-          <Route path="/facial-recognition/*" element={<FacialRecognitionApp userInfo={userInfo} onLogout={handleLogout} />} />
+          <Route path="/" element={<DashboardPage userInfo={userInfo} onLogout={handleLogout} />} />
+          <Route path="/timetable/*" element={<TimetablePage userInfo={userInfo} onLogout={handleLogout} />} />
+          <Route path="/facial-recognition/*" element={<AttendancePage userInfo={userInfo} onLogout={handleLogout} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const HomePageSimple = ({ userInfo, onLogout }) => {
+const DashboardPage = ({ userInfo, onLogout }) => {
   const navigate = useNavigate();
 
   return (
@@ -102,4 +102,4 @@ const HomePageSimple = ({ userInfo, onLogout }) => {
   );
 };
 
-export default HomePageSimple;
+export default DashboardPage;
